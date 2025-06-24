@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const Product = require('../models/Banner'); // Assuming you have a Product model
+const SubBanner = require('../models/SubBanner'); // Assuming you have a Product model
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -31,7 +31,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 
         const imageUrl = getFullImageUrl(req.file.filename);
 
-        const product = new Product({
+        const product = new SubBanner({
             title,
             subtitle,
             price,
@@ -55,7 +55,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 // Get All Products
 router.get('/', async (req, res) => {
     try {
-        const products = await Product.find().sort({ createdAt: -1 });
+        const products = await SubBanner.find().sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -65,7 +65,7 @@ router.get('/', async (req, res) => {
 // Get Single Product
 router.get('/:id', async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await SubBanner.findById(req.params.id);
         if (!product) return res.status(404).json({ error: 'Banner not found' });
         res.json(product);
     } catch (error) {
@@ -90,7 +90,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             updateData.imageUrl = `/uploads/${req.file.filename}`;
         }
 
-        const product = await Product.findByIdAndUpdate(
+        const product = await SubBanner.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true }
@@ -106,7 +106,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 // Delete Product
 router.delete('/:id', async (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete(req.params.id);
+        const product = await SubBanner.findByIdAndDelete(req.params.id);
         if (!product) return res.status(404).json({ error: 'Banner not found' });
         res.json({ message: 'Banner deleted successfully' });
     } catch (error) {

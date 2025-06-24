@@ -16,15 +16,35 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-const authAdminRoutes = require('./routes/authAdminRoutes');
-const userAdminRoutes = require('./routes/userAdminRoutes');
+// Multer Configuration
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, 'uploads'));
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+// const authAdminRoutes = require('./routes/authAdminRoutes');
+// const userAdminRoutes = require('./routes/userAdminRoutes');
 const productRoutes = require('./routes/productRoutes');
-const orderRoutes = require('./routes/orderRoutes');
+// const orderRoutes = require('./routes/orderRoutes');
 const BannerRoutes = require('./routes/Banner')
+const SubBannerRoutes = require('./routes/SubBannerRoutes')
+
+
+
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -35,11 +55,13 @@ if (process.env.NODE_ENV === 'development') {
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
-app.use('/api/auth', authAdminRoutes);
-app.use('/api/users', userAdminRoutes);
+// app.use('/api/auth', authAdminRoutes);
+// app.use('/api/users', userAdminRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
+// app.use('/api/orders', orderRoutes);
 app.use('/api/banners', BannerRoutes);
+app.use('/api/subbanners', SubBannerRoutes);
+
 // Error handling middleware
 app.use(errorHandler);
 
