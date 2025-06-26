@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bannerSchema = new mongoose.Schema({
+const subbannerSchema = new mongoose.Schema({
     title: { type: String, required: true },
     subtitle: { type: String, required: true },
     price: { type: Number, required: true },
@@ -11,4 +11,4 @@ const bannerSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('banner', bannerSchema);
+module.exports = mongoose.model('SubBanner', subbannerSchema);
