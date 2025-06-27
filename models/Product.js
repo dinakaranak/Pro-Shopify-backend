@@ -12,34 +12,55 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Product description is required'],
     maxlength: [1000, 'Description cannot exceed 1000 characters']
   },
-  price: {
+  originalPrice: {
     type: Number,
-    required: [true, 'Product price is required'],
+    required: [true, 'Original price is required'],
     min: [0.01, 'Price must be at least 0.01']
+  },
+  discountPrice: {
+    type: Number,
+    required: [true, 'Discounted price is required'],
+    min: [0.01, 'Discount price must be at least 0.01']
+  },
+  discountPercent: {
+    type: Number,
+    min: [0, 'Discount percent must be >= 0'],
+    max: [100, 'Discount percent must be <= 100'],
+    default: 0
   },
   category: {
     type: String,
-    required: [true, 'Product category is required'],
-    enum: {
-      values: [
-        'Electronics',
-        'Clothing',
-        'Home & Kitchen',
-        'Books',
-        'Beauty',
-        'Sports',
-        'Other'
-      ],
-      message: 'Please select a valid category'
-    }
+    required: [true, 'Product category is required']
   },
-  imageUrl: {
+  subcategory: {
     type: String,
-    default: ''
+    required: [true, 'Product subcategory is required']
+  },
+  brand: {
+    type: String,
+    required: [true, 'Brand name is required'],
+    trim: true
+  },
+  images: {
+    type: [String], // Array of image URLs
+    default: []
+  },
+  colors: {
+    type: [String], // e.g., ["Red", "Blue", "Black"]
+    default: []
+  },
+  sizeChart: {
+    type: [
+      {
+        label: { type: String, required: true }, // e.g., "M", "28", "XL"
+        stock: { type: Number, required: true, min: 0 }
+      }
+    ],
+    default: []
   },
   stock: {
     type: Number,
-    required: [true, 'Stock quantity is required'],
+    required: [true, 'Total stock quantity is required'],
     min: [0, 'Stock cannot be negative'],
     default: 0
   },
