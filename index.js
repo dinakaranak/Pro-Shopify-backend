@@ -7,7 +7,9 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const errorHandler = require('./utils/errorHandler').errorHandler;
 // const { errorHandler } = require('./middlewares/error');
-
+const path = require('path');
+const imageupload=require('./routes/uploadRoute');
+const categoryRoutes = require('./routes/categoryRoutes');
 // Initialize Express app
 const app = express();
 
@@ -40,6 +42,7 @@ const productRoutes = require('./routes/productRoutes');
 const BannerRoutes = require('./routes/Banner')
 const AdminUserRoutes = require('./routes/adminRoutes');
 const SubBannerRoutes = require('./routes/SubBannerRoutes')
+app.use('/api/categories', categoryRoutes);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -50,6 +53,7 @@ if (process.env.NODE_ENV === 'development') {
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
+app.use('/api/upload', imageupload);
 app.use('/api/products', productRoutes);
 app.use('/api/banners', BannerRoutes);
 app.use('/api/adminUsers', AdminUserRoutes);

@@ -21,11 +21,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    
+    if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
   } catch (err) {
     console.error(err);
@@ -38,14 +34,33 @@ router.get('/:id', async (req, res) => {
 // @access  Private/Admin
 router.post('/', async (req, res) => {
   try {
-    const { name, description, price, category, imageUrl, stock } = req.body;
-    
+    const {
+      name,
+      description,
+      originalPrice,
+      discountPrice,
+      discountPercent,
+      category,
+      subcategory,
+      brand,
+      images,
+      colors,
+      sizeChart,
+      stock
+    } = req.body;
+
     const product = new Product({
       name,
       description,
-      price,
+      originalPrice,
+      discountPrice,
+      discountPercent,
       category,
-      imageUrl: imageUrl || '',
+      subcategory,
+      brand,
+      images: images || [],
+      colors: colors || [],
+      sizeChart: sizeChart || [],
       stock
     });
 
@@ -66,20 +81,36 @@ router.post('/', async (req, res) => {
 // @access  Private/Admin
 router.put('/:id', async (req, res) => {
   try {
-    const { name, description, price, category, imageUrl, stock } = req.body;
-    
-    const product = await Product.findById(req.params.id);
+    const {
+      name,
+      description,
+      originalPrice,
+      discountPrice,
+      discountPercent,
+      category,
+      subcategory,
+      brand,
+      images,
+      colors,
+      sizeChart,
+      stock
+    } = req.body;
 
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
 
     product.name = name || product.name;
     product.description = description || product.description;
-    product.price = price || product.price;
+    product.originalPrice = originalPrice ?? product.originalPrice;
+    product.discountPrice = discountPrice ?? product.discountPrice;
+    product.discountPercent = discountPercent ?? product.discountPercent;
     product.category = category || product.category;
-    product.imageUrl = imageUrl || product.imageUrl;
-    product.stock = stock || product.stock;
+    product.subcategory = subcategory || product.subcategory;
+    product.brand = brand || product.brand;
+    product.images = images || product.images;
+    product.colors = colors || product.colors;
+    product.sizeChart = sizeChart || product.sizeChart;
+    product.stock = stock ?? product.stock;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
@@ -99,17 +130,15 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    await product.remove();
+    await product.deleteOne(); // <-- use this instead
     res.json({ message: 'Product removed' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 module.exports = router;
