@@ -39,8 +39,6 @@ const BannerRoutes = require('./routes/Banner')
 const SubBannerRoutes = require('./routes/SubBannerRoutes')
 
 
-
-
 // Middleware
 app.use(cors());
 app.use(express.json());
