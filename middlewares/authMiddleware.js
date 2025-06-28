@@ -3,43 +3,51 @@ const AdminUser = require('../models/AdminUser');
 
 // Protect: Checks if user is logged in
 const protect = async (req, res, next) => {
-  // const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
+console.log("Authorization header:", authHeader);
 
-  // if (!authHeader || !authHeader.startsWith('Bearer')) {
-  //   return res.status(401).json({ message: 'No token, not authorized' });
-  // }
+  if (!authHeader || !authHeader.startsWith('Bearer')) {
+    return res.status(401).json({ message: 'No token, not authorized' });
+  }
 
-  // const token = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1];
 
-  // try {
-  //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  //   const user = await AdminUser.findById(decoded.id);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await AdminUser.findById(decoded.id);
+console.log("Decoded user ID:", decoded.id);
 
-  //   if (!user) {
-  //     return res.status(404).json({ message: 'User not found' });
-  //   }
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-  //   req.user = user;
-  //   next(); // continue to next handler
-  // } catch (err) {
-  //   return res.status(401).json({ message: 'Invalid token' });
-  // }
-   req.user = {
-    id: '1234567890',
-    name: 'Dummy Admin',
-    email: 'dummy@admin.com',
-    role: 'admin', // change to 'supplier' if needed
-    isActive: true,
-  };
-  next();
+    req.user = user;
+    console.log("Authenticated user:", req.user ? req.user.name : 'No user found');
+    
+    next(); // continue to next handler
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+  //  req.user = {
+  //   id: '1234567890',
+  //   name: 'Dummy Admin',
+  //   email: 'dummy@admin.com',
+  //   role: 'admin', // change to 'supplier' if needed
+  //   isActive: true,
+  // };
+  // next();
 };
 
 // Require Role: Checks if user is an admin
 const requireRole = (role) => {
+  console.log("Role required:");
+  
   return (req, res, next) => {
-    // if (!req.user || req.user.role !== role) {
-    //   return res.status(403).json({ message: 'Access denied: admin only' });
-    // }
+    console.log("Checking user role:", req.user ? req.user.role : 'No user');
+    
+    if (!req.user || req.user.role !== role) {
+      return res.status(403).json({ message: 'Access denied: admin only' });
+    }
     next();
   };
 };

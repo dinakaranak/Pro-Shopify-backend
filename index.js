@@ -10,6 +10,9 @@ const errorHandler = require('./utils/errorHandler').errorHandler;
 const path = require('path');
 const imageupload=require('./routes/uploadRoute');
 const categoryRoutes = require('./routes/categoryRoutes');
+const SupplierProduct = require('./routes/suplierRoute');
+const cartRoutes = require('./routes/cartRoute');
+const orderRoutes = require('./routes/orderRoute');
 // Initialize Express app
 const app = express();
 
@@ -58,7 +61,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/banners', BannerRoutes);
 app.use('/api/adminUsers', AdminUserRoutes);
 app.use('/api/subbanners', SubBannerRoutes);
-
+app.use('/api/supplier-products', SupplierProduct); 
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
