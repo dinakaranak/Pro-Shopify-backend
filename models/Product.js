@@ -52,8 +52,8 @@ const productSchema = new mongoose.Schema({
   sizeChart: {
     type: [
       {
-        label: { type: String, required: true }, // e.g., "M", "28", "XL"
-        stock: { type: Number, required: true, min: 0 }
+        label: { type: String, required: false }, // e.g., "M", "28", "XL"
+        stock: { type: Number, required: false, min: 0 }
       }
     ],
     default: []
