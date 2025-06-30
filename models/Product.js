@@ -52,8 +52,9 @@ const productSchema = new mongoose.Schema({
   sizeChart: {
     type: [
       {
-        label: { type: String, required: false }, // e.g., "M", "28", "XL"
-        stock: { type: Number, required: false, min: 0 }
+        label: { type: String }, // e.g., "M", "28", "XL"
+        stock: { type: Number, min: 0 }
+
       }
     ],
     default: []
@@ -63,6 +64,11 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Total stock quantity is required'],
     min: [0, 'Stock cannot be negative'],
     default: 0
+  },
+  addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'AdminUser',
+    required: true
   },
   createdAt: {
     type: Date,

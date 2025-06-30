@@ -2,8 +2,38 @@
 const express = require('express');
 const AdminUser = require('../models/AdminUser');
 const { protect, requireRole } = require('../middlewares/authMiddleware');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await AdminUser.findOne({ email });
+  if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+
+  const isMatch = await user.matchPassword(password);
+  if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
+
+  if (!user.isActive) return res.status(403).json({ message: 'Account is deactivated' });
+
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  res.json({
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      permissions: user.permissions,
+    },
+  });
+});
 
 // All admin & suppliers
 router.get('/', protect, requireRole('admin'), async (req, res) => {
@@ -46,6 +76,7 @@ router.delete('/:id', protect, requireRole('admin'), async (req, res) => {
 // Create a new admin or supplier
 router.post('/', protect, requireRole('admin'), async (req, res) => {
     const { name, email, password, role, permissions } = req.body;
+console.log("Creating user with data:", { name, email, role, permissions });
 
     // Check if email already exists
     const exists = await AdminUser.findOne({ email });
@@ -74,8 +105,6 @@ router.post('/', protect, requireRole('admin'), async (req, res) => {
             isActive: newUser.isActive,
         },
     });
-
-
 
 });
 
