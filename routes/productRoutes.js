@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
+const { protect, requireRole } = require('../middlewares/authMiddleware');
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -32,7 +33,7 @@ router.get('/:id', async (req, res) => {
 // @desc    Create a product
 // @route   POST /api/products
 // @access  Private/Admin
-router.post('/', async (req, res) => {
+router.post('/', protect,requireRole('admin'),async (req, res) => {
   try {
     const {
       name,
@@ -61,7 +62,9 @@ router.post('/', async (req, res) => {
       images: images || [],
       colors: colors || [],
       sizeChart: sizeChart || [],
-      stock
+      stock,
+      addedBy: req.user._id
+
     });
 
     const createdProduct = await product.save();
@@ -79,7 +82,7 @@ router.post('/', async (req, res) => {
 // @desc    Update a product
 // @route   PUT /api/products/:id
 // @access  Private/Admin
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect,requireRole('admin'), async (req, res) => {
   try {
     const {
       name,
@@ -127,7 +130,7 @@ router.put('/:id', async (req, res) => {
 // @desc    Delete a product
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect,requireRole('admin'), async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
