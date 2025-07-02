@@ -42,7 +42,7 @@ router.post('/signup', asyncHandler(async (req, res, next) => {
   const user = await User.create({ email, password,name });
 
   const otp = generateOtp();
-  const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+  const expiry = new Date(Date.now() + 1 * 60 * 1000); // 10 min
 
   await OtpToken.create({ userId: user._id, otp, expiresAt: expiry });
   await sendEmail(email, 'Verify your email', `Your OTP is: ${otp}`);

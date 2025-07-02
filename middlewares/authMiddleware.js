@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const AdminUser = require('../models/AdminUser');
+const User = require('../models/User');
 
 // Protect: Checks if user is logged in
 const protect = async (req, res, next) => {
@@ -14,8 +15,10 @@ console.log("Authorization header:", authHeader);
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await AdminUser.findById(decoded.id);
-console.log("Decoded user ID:", decoded.id);
+    let user = await AdminUser.findById(decoded.id);
+    if (!user) {
+      user = await User.findById(decoded.id);
+    }console.log("Decoded user ID:", decoded.id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -26,6 +29,9 @@ console.log("Decoded user ID:", decoded.id);
     
     next(); // continue to next handler
   } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired, please login again' });
+    }
     return res.status(401).json({ message: 'Invalid token' });
   }
   //  req.user = {
