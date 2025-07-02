@@ -12,6 +12,8 @@ router.get('/', protect, async (req, res) => {
 // ➕ Add item to cart
 router.post('/', protect, async (req, res) => {
   const { productId, quantity } = req.body;
+  console.log("res", req.body);
+  
   let cart = await Cart.findOne({ user: req.user._id });
 
   if (!cart) {
