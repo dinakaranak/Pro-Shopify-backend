@@ -40,13 +40,16 @@ const UserSchema = new mongoose.Schema(
     },
     addresses: [
       {
-        label: { type: String, default: 'Home' },
-        street: { type: String },
-        city: { type: String },
-        state: { type: String },
-        postalCode: { type: String },
-        country: { type: String },
+        label: { type: String, required: true }, // Home, Work, etc.
+        fullName: { type: String, required: true },
+        phone: { type: String, required: true },
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        postalCode: { type: String, required: true },
+        country: { type: String, default: 'India' },
         isDefault: { type: Boolean, default: false },
+        createdAt: { type: Date, default: Date.now }
       },
     ],
   },

@@ -13,6 +13,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const SupplierProduct = require('./routes/suplierRoute');
 const cartRoutes = require('./routes/cartRoute');
 const orderRoutes = require('./routes/orderRoute');
+const userRoutes = require('./routes/userRoute');
 // Initialize Express app
 const app = express();
 
@@ -64,6 +65,7 @@ app.use('/api/subbanners', SubBannerRoutes);
 app.use('/api/supplier-products', SupplierProduct); 
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/users', userRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
