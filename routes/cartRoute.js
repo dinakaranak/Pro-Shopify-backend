@@ -46,12 +46,22 @@ router.put('/:itemId', protect, async (req, res) => {
 // ❌ Remove item from cart
 router.delete('/:itemId', protect, async (req, res) => {
   const cart = await Cart.findOne({ user: req.user._id });
+
   if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
-  cart.items.id(req.params.itemId)?.remove();
+  const originalLength = cart.items.length;
+
+  // Remove the item by _id manually
+  cart.items = cart.items.filter(item => item._id.toString() !== req.params.itemId);
+
+  if (cart.items.length === originalLength) {
+    return res.status(404).json({ message: 'Item not found in cart' });
+  }
+
   await cart.save();
   res.json(cart);
 });
+
 
 // 🔄 Clear cart
 router.delete('/clear/all', protect, async (req, res) => {
