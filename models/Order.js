@@ -9,12 +9,16 @@ const orderSchema = new mongoose.Schema({
     }
   ],
   shippingAddress: {
-    fullName: String,
-    phone: String,
-    address: String,
-    city: String,
-    state: String,
-    zip: String,
+    label: { type: String, required: true }, // Home, Work, etc.
+    fullName: { type: String, required: true },
+    phone: { type: String, required: true },
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, default: 'India' },
+    isDefault: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
   },
   paymentMethod: String,
   status: { type: String, default: 'pending' },
