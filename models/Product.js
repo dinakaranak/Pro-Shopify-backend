@@ -54,6 +54,7 @@ const productSchema = new mongoose.Schema({
       {
         label: { type: String }, // e.g., "M", "28", "XL"
         stock: { type: Number, min: 0 }
+
       }
     ],
     default: []
