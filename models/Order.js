@@ -23,6 +23,7 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: String,
   status: { type: String, default: 'pending' },
   trackingId: String,
+  total: { type: Number, required: true }, // Total amount for the order
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
