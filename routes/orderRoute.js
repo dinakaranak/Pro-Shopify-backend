@@ -85,7 +85,7 @@ const User = require('../models/User'); // make sure you import this
 // 👤 Get logged-in user's orders
 
 router.post('/', protect, async (req, res) => {
-  const { shippingAddress, paymentMethod, mode, productId } = req.body; // Removed quantity (not needed here)
+  const { shippingAddress, paymentMethod, mode, productId, total } = req.body; // Removed quantity (not needed here)
   const userId = req.user._id;
 
   const user = await User.findById(userId);
@@ -97,13 +97,13 @@ router.post('/', protect, async (req, res) => {
 
   // ====== 1. ADDRESS VALIDATION AND PROCESSING ======
   // Validate required address fields
-  if (!shippingAddress || 
-      !shippingAddress.fullName || 
-      !shippingAddress.phone || 
-      !shippingAddress.street || 
-      !shippingAddress.city || 
-      !shippingAddress.state || 
-      !shippingAddress.postalCode) {
+  if (!shippingAddress ||
+    !shippingAddress.fullName ||
+    !shippingAddress.phone ||
+    !shippingAddress.street ||
+    !shippingAddress.city ||
+    !shippingAddress.state ||
+    !shippingAddress.postalCode) {
     return res.status(400).json({ message: 'Missing required shipping address fields' });
   }
 
@@ -117,7 +117,7 @@ router.post('/', protect, async (req, res) => {
   // Create new address with correct structure
   if (!isDuplicate) {
     user.addresses.forEach(addr => (addr.isDefault = false));
-    
+
     user.addresses.push({
       label: shippingAddress.label || 'Shipping', // Added label
       fullName: shippingAddress.fullName, // Added fullName
@@ -129,7 +129,7 @@ router.post('/', protect, async (req, res) => {
       country: shippingAddress.country || 'India',
       isDefault: true,
     });
-    
+
     await user.save();
   }
 
@@ -164,6 +164,8 @@ router.post('/', protect, async (req, res) => {
     },
     paymentMethod,
     status: 'pending',
+    total: total, // ✅ save total passed from frontend
+
   });
 
   await order.save();
@@ -184,9 +186,10 @@ router.post('/', protect, async (req, res) => {
 });
 
 router.get('/', protect, async (req, res) => {
-  const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+  const orders = await Order.find({ user: req.user._id }).populate('items.productId').sort({ createdAt: -1 });
   res.json(orders);
 });
+
 router.get('/admin/:id', protect, requireRole('admin'), async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user');
   if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -195,15 +198,24 @@ router.get('/admin/:id', protect, requireRole('admin'), async (req, res) => {
 
 // 👤 Get a specific order (only owner can see it)
 router.get('/:id', protect, async (req, res) => {
-  const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+  const order = await Order.findOne({ _id: req.params.id, user: req.user._id }).populate('items.productId');
   if (!order) return res.status(404).json({ message: 'Order not found' });
   res.json(order);
 });
 
 // 🔐 Admin: Get all orders
-router.get('/admin/all', protect, requireRole('admin'), async (req, res) => {
-  const orders = await Order.find().populate('user').sort({ createdAt: -1 });
-  res.json(orders);
+router.get('/userOrders/all', protect, requireRole('admin'), async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('user')                // Populate user info
+      .populate('items.productId')     // Populate each product in the items array
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // 🔐 Admin: Update order status
@@ -224,12 +236,13 @@ router.put('/admin/:id', protect, requireRole('admin'), async (req, res) => {
 router.get('/users/:id/orders', protect, requireRole('admin'), async (req, res) => {
   try {
     console.log("Fetching orders for user ID:", req.params.id);
-    
+
     const orders = await Order.find({ user: req.params.id })
+      .populate('items.productId') // 👈 Populate the product details
       .sort('-createdAt')
       .limit(5)
       .lean();
-      
+
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -240,9 +253,9 @@ router.get('/users/:id/orders', protect, requireRole('admin'), async (req, res) 
 router.get('/users/:id/stats', protect, requireRole('admin'), async (req, res) => {
   try {
     console.log("Fetching stats for user ID:", req.params.id);
-    
+
     const stats = await Order.aggregate([
-      { $match: { user:new mongoose.Types.ObjectId(req.params.id) } },
+      { $match: { user: new mongoose.Types.ObjectId(req.params.id) } },
       {
         $group: {
           _id: null,
@@ -253,19 +266,19 @@ router.get('/users/:id/stats', protect, requireRole('admin'), async (req, res) =
         }
       }
     ]);
-    
+
     const result = stats[0] || {
       totalOrders: 0,
       totalSpent: 0,
       avgOrderValue: 0,
       lastOrder: null
     };
-    
+
     res.json(result);
   } catch (err) {
-  console.error('Stats error:', err); // helpful log
-  res.status(500).json({ message: 'Server error' });
-}
+    console.error('Stats error:', err); // helpful log
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router;
