@@ -80,4 +80,29 @@ router.post('/addresses', protect, async (req, res) => {
   }
 });
 
+// DELETE /api/users/addresses/:addressId
+router.delete('/addresses/:addressId', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const originalLength = user.addresses.length;
+
+    // Filter out the address with the given ID
+    user.addresses = user.addresses.filter(
+      addr => addr._id.toString() !== req.params.addressId
+    );
+
+    if (user.addresses.length === originalLength) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+
+    await user.save();
+    res.status(200).json({ message: 'Address deleted successfully', addresses: user.addresses });
+  } catch (error) {
+    console.error('Delete address error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
