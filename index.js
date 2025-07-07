@@ -14,6 +14,7 @@ const SupplierProduct = require('./routes/suplierRoute');
 const cartRoutes = require('./routes/cartRoute');
 const orderRoutes = require('./routes/orderRoute');
 const userRoutes = require('./routes/userRoute');
+const wishlistRoutes = require('./routes/wishlistRoute');
 // Initialize Express app
 const app = express();
 
@@ -52,7 +53,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 
-
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
@@ -65,6 +65,7 @@ app.use('/api/supplier-products', SupplierProduct);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 // Error handling middleware
 app.use(errorHandler);
 

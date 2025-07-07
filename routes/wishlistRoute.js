@@ -68,7 +68,7 @@ router.delete('/:itemId', protect, async (req, res) => {
     
     const initialLength = wishlist.items.length;
     wishlist.items = wishlist.items.filter(
-      item => item.product.toString() !== req.params.itemId
+      item => item._id.toString() !== req.params.itemId  // Changed from item.product to item._id
     );
     
     if (wishlist.items.length === initialLength) {
@@ -82,6 +82,17 @@ router.delete('/:itemId', protect, async (req, res) => {
     });
   } catch (error) {
     console.error('Error removing from wishlist:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.get('/count', protect, async (req, res) => {
+  try {
+    const wishlist = await Wishlist.findOne({ user: req.user._id });
+    const count = wishlist ? wishlist.items.length : 0;
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error('Error getting wishlist count:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
