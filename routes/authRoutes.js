@@ -242,4 +242,53 @@ router.delete('/:id', protect, requireRole('admin'), async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// Google Auth Route
+router.post('/google', asyncHandler(async (req, res, next) => {
+  const { uid, email, name, photoURL } = req.body;
+
+  if (!uid || !email) {
+    return next(new ErrorResponse('Invalid Google credentials', 400));
+  }
+
+  // Check if user exists
+  let user = await User.findOne({ $or: [{ email }, { uid }] });
+
+  if (!user) {
+    // Create new user if doesn't exist
+    user = await User.create({
+      uid,
+      email,
+      name: name || email.split('@')[0],
+      photoURL,
+      isVerified: true,
+      isActive: true,
+      authProvider: 'google'
+    });
+  } else {
+    // Update existing user if needed
+    if (!user.uid) user.uid = uid;
+    if (!user.isVerified) user.isVerified = true;
+    if (!user.isActive) user.isActive = true;
+    if (photoURL && !user.photoURL) user.photoURL = photoURL;
+    await user.save();
+  }
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE
+  });
+
+  res.status(200).json({
+    success: true,
+    token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      photoURL: user.photoURL,
+      role: user.role
+    }
+  });
+}));
+
 module.exports = router;

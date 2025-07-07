@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
+      // required: [true, 'Please provide a password'],
       minlength: 6,
       select: false,
     },
@@ -38,6 +38,9 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    uid: { type: String, unique: true, sparse: true }, // Firebase UID
+    photoURL: String,
+    authProvider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' },
     addresses: [
       {
         label: { type: String, required: true }, // Home, Work, etc.
