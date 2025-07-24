@@ -70,10 +70,35 @@ const productSchema = new mongoose.Schema({
     ref: 'AdminUser',
     required: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+    specifications: [{
+    key: { type: String, required: true },
+    value: { type: String, required: true }
+  }],
+   featureDescriptions: [{
+    title:{type:String},
+    description: { type: String, required: true },
+    image: { type: String } // URL for feature image
+  }],
+  averageRating: {
+  type: Number,
+  default: 0,
+  min: 0,
+  max: 5
+},
+reviews: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Review'
+}],
+ratingAttributes: {
+  type: [String],
+  default: ['quality', 'color', 'design', 'size']
+}
+
+  // createdAt: {
+  //   type: Date,
+  //   default: Date.now
+  // }
+} , { timestamps: true }
+);
 
 module.exports = mongoose.model('Product', productSchema);

@@ -10,6 +10,8 @@ router.post('/', protect, async (req, res) => {
     // if (req.user.role !== 'supplier') {
     //   return res.status(403).json({ message: 'Access denied' });
     // }
+      console.log("sp",req.body);
+      
     const newProduct = await SupplierProduct.create({
       ...req.body,
       addedBy: req.user._id
@@ -81,7 +83,9 @@ router.post('/approve/:id', protect, requireRole('admin'), async (req, res) => {
       colors: sp.colors,
       sizeChart: sp.sizeChart,
       stock: sp.stock,
-      addedBy: sp.addedBy
+      addedBy: sp.addedBy,
+      specifications: sp.specifications,
+      featureDescriptions: sp.featureDescriptions
     });
 
     sp.status = 'approved';

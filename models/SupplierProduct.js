@@ -28,7 +28,17 @@ const supplierProductSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
-  adminRemarks: { type: String, default: '' }
+  adminRemarks: { type: String, default: '' },
+
+  specifications: [{
+    key: { type: String, required: true },
+    value: { type: String, required: true }
+  }],
+  featureDescriptions: [{
+    title:{type:String},
+    description: { type: String, required: true },
+    image: { type: String } // URL for feature image
+  }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('SupplierProduct', supplierProductSchema);

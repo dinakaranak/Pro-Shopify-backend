@@ -47,7 +47,9 @@ router.post('/', protect,requireRole('admin'),async (req, res) => {
       images,
       colors,
       sizeChart,
-      stock
+      stock,
+      specifications,
+      featureDescriptions
     } = req.body;
 
     const product = new Product({
@@ -63,8 +65,9 @@ router.post('/', protect,requireRole('admin'),async (req, res) => {
       colors: colors || [],
       sizeChart: sizeChart || [],
       stock,
-      addedBy: req.user._id
-
+      addedBy: req.user._id,
+      specifications,
+      featureDescriptions
     });
 
     const createdProduct = await product.save();
@@ -96,8 +99,12 @@ router.put('/:id', protect,requireRole('admin'), async (req, res) => {
       images,
       colors,
       sizeChart,
-      stock
+      stock,
+      specifications,
+      featureDescriptions,
+      ratingAttributes
     } = req.body;
+console.log("rating atri",ratingAttributes);
 
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -114,6 +121,9 @@ router.put('/:id', protect,requireRole('admin'), async (req, res) => {
     product.colors = colors || product.colors;
     product.sizeChart = sizeChart || product.sizeChart;
     product.stock = stock ?? product.stock;
+    product.specifications = specifications ?? product.specifications;
+    product.featureDescriptions = featureDescriptions ?? product.featureDescriptions;
+    product.ratingAttributes = ratingAttributes ?? product.ratingAttributess;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
